@@ -1,0 +1,72 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Environment files and credentials
+.env
+.env.local
+.env.production
+*.pem
+*.key
+*.crt
+
+# Chatterbox generated audio files and transcripts (protect user privacy)
+generated_audio/*.wav
+generated_audio/*.mp3
+generated_audio/*.flac
+generated_audio/*.txt
+generated_audio/*.md
+!generated_audio/.gitkeep
+**/*.wav
+
+# Voice profiles reference audio (do not commit private biometric voice clips)
+voice_profiles/*.wav
+voice_profiles/*.mp3
+voice_profiles/*.flac
+voice_profiles/.tmp/
+!voice_profiles/*.json
+
+# Model weights and caches
+models/
+checkpoints/
+syn_out/
+.gradio/
+*.pt
+*.safetensors
+*.ckpt
+.cache/
+huggingface/
+
+# IDE and OS files
+.vscode/
+.idea/
+pyrightconfig.json
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

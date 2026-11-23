@@ -1,0 +1,33 @@
+{
+  "name": "chatterbox-voice-marketplace",
+  "version": "1.0.0",
+  "description": "Official Claude Code marketplace for Chatterbox AI Voice Generation, Multilingual TTS (Hindi, English, etc.), Voice Cloning, and Audio Narration.",
+  "owner": {
+    "name": "Chatterbox AI Community",
+    "url": "https://github.com/itstushardeveloper-stack/openvoice-studio"
+  },
+  "plugins": [
+    {
+      "name": "chatterbox",
+      "version": "1.0.0",
+      "description": "High-fidelity AI voice generation, multilingual TTS (Hindi, English, and 23+ languages), zero-shot voice cloning, and audio narration powered by Chatterbox Multilingual V3.",
+      "source": "./plugins/chatterbox",
+      "author": {
+        "name": "Chatterbox Open Source Voice Team"
+      },
+      "tags": [
+        "voice",
+        "tts",
+        "ai-voice",
+        "chatterbox",
+        "multilingual",
+        "hindi",
+        "english",
+        "voice-cloning",
+        "narration",
+        "youtube",
+        "podcast"
+      ]
+    }
+  ]
+}

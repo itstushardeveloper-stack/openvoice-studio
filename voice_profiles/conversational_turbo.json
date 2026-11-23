@@ -1,0 +1,10 @@
+{
+  "name": "conversational_turbo",
+  "description": "Dynamic, upbeat conversational voice supporting paralinguistic expressions.",
+  "gender": "neutral",
+  "language_tag": "en",
+  "audio_path": null,
+  "authorized": true,
+  "created_at": "2026-01-01T00:00:00Z",
+  "speaker_id": "turbo_standard"
+}
