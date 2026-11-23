@@ -160,13 +160,16 @@ def generate_speech(req: TTSGenerateRequest):
 def get_audio_file(filename: str):
     """Retrieve and stream synthesized audio WAV file."""
     safe_name = sanitize_filename(filename)
-    audio_path = (config.storage_dir / safe_name).resolve()
+    base_dir = config.storage_dir.resolve()
+    audio_path = (base_dir / safe_name).resolve()
 
-    # Prevent directory traversal
-    if not str(audio_path).startswith(str(config.storage_dir)):
+    # Prevent directory traversal across all operating systems
+    try:
+        audio_path.relative_to(base_dir)
+    except ValueError:
         raise HTTPException(status_code=403, detail="Access denied.")
 
-    if not audio_path.exists():
+    if not audio_path.exists() or audio_path == base_dir:
         raise HTTPException(status_code=404, detail="Audio file not found.")
 
     return FileResponse(

@@ -44,9 +44,15 @@ class VoiceProfileManager:
     """Manages storage, retrieval, and authorization of voice profiles."""
 
     def __init__(self, profiles_dir: Optional[Path] = None):
-        self.profiles_dir = profiles_dir or config.profiles_dir
-        self.profiles_dir.mkdir(parents=True, exist_ok=True)
+        self._custom_profiles_dir = profiles_dir
         self._ensure_builtin_profiles()
+
+    @property
+    def profiles_dir(self) -> Path:
+        """Dynamic path to profiles directory ensuring active config is used."""
+        p = self._custom_profiles_dir or config.profiles_dir
+        p.mkdir(parents=True, exist_ok=True)
+        return p
 
     def _ensure_builtin_profiles(self):
         """Seed default built-in profile descriptors."""

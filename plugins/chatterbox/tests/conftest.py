@@ -28,9 +28,9 @@ from backend.engine import ChatterboxVoiceEngine
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
     """Setup isolated test storage and voice profile directories."""
-    test_dir = Path(tempfile.mkdtemp(prefix="cbx_test_"))
-    storage_dir = test_dir / "generated_audio"
-    profiles_dir = test_dir / "voice_profiles"
+    test_dir = Path(tempfile.mkdtemp(prefix="cbx_test_")).resolve()
+    storage_dir = (test_dir / "generated_audio").resolve()
+    profiles_dir = (test_dir / "voice_profiles").resolve()
 
     storage_dir.mkdir(parents=True, exist_ok=True)
     profiles_dir.mkdir(parents=True, exist_ok=True)

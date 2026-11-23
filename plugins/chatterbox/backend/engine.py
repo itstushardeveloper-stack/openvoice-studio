@@ -71,9 +71,13 @@ class ChatterboxVoiceEngine:
     def __init__(self):
         self.device = config.resolve_device()
         self.model = None
-        self.history_file = config.storage_dir / "generation_history.json"
         self._is_model_loaded = False
         self._init_engine()
+
+    @property
+    def history_file(self) -> Path:
+        """Dynamic path to history file ensuring active config storage directory is used."""
+        return config.storage_dir / "generation_history.json"
 
     def _init_engine(self):
         """Attempt to initialize the official Chatterbox Multilingual TTS model."""
