@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Chatterbox AI Voice Studio - Windows Installation Script
 .DESCRIPTION
