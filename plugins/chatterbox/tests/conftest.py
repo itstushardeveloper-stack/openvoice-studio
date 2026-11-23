@@ -2,9 +2,19 @@
 
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 import pytest
+
+# Ensure plugin directory and root directory are in sys.path across all platforms
+_TESTS_DIR = Path(__file__).resolve().parent
+_PLUGIN_DIR = _TESTS_DIR.parent
+_ROOT_DIR = _PLUGIN_DIR.parent.parent
+
+for _p in [str(_PLUGIN_DIR), str(_ROOT_DIR)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 # Ensure mock inference is enabled during all automated test runs
 os.environ["CHATTERBOX_MOCK_INFERENCE"] = "true"

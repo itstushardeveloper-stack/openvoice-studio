@@ -41,6 +41,7 @@ generated_audio/*.mp3
 generated_audio/*.flac
 generated_audio/*.txt
 generated_audio/*.md
+generated_audio/*.json
 !generated_audio/.gitkeep
 **/*.wav
 

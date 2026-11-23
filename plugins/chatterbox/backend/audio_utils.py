@@ -26,8 +26,9 @@ ALLOWED_PARALINGUISTIC_TAGS = {"[laugh]", "[chuckle]", "[cough]", "[sigh]", "[ga
 
 
 def sanitize_filename(filename: str) -> str:
-    """Sanitize filename to prevent directory traversal or invalid characters."""
-    base = os.path.basename(filename)
+    """Sanitize filename to prevent directory traversal or invalid characters across all OS platforms."""
+    normalized = str(filename).replace("\\", "/")
+    base = os.path.basename(normalized)
     # Remove path traversal tokens and illegal characters
     cleaned = re.sub(r'[^a-zA-Z0-9_\-\. ]', '_', base)
     cleaned = cleaned.strip(". ")
