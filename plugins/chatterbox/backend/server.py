@@ -1,5 +1,6 @@
-"""FastAPI REST API server for Chatterbox Voice Studio."""
+"""FastAPI REST API server for VoiceStudio & Chatterbox Voice Studio."""
 
+import io
 import os
 from pathlib import Path
 from typing import List, Optional
@@ -16,7 +17,7 @@ from fastapi import (
     Request,
 )
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
+from fastapi.responses import FileResponse, RedirectResponse, JSONResponse, Response
 from fastapi.security.api_key import APIKeyHeader
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -31,9 +32,9 @@ from .languages import (
 from .profiles import profile_manager, VoiceProfile
 
 app = FastAPI(
-    title="Chatterbox AI Voice Studio API",
+    title="Chatterbox & VoiceStudio AI Voice API",
     description="High-fidelity AI voice generation, multilingual TTS (Hindi, English, etc.), and voice cloning API.",
-    version="1.0.0",
+    version="1.2.0",
 )
 
 # Enable CORS for dashboard and external frontends
@@ -70,6 +71,14 @@ class TTSGenerateRequest(BaseModel):
     title: Optional[str] = Field("narration", description="Title for output file")
 
 
+class OpenAISpeechRequest(BaseModel):
+    model: str = "tts-1"
+    voice: Optional[str] = "alloy"
+    input: str = Field(..., min_length=1)
+    response_format: Optional[str] = "wav"
+    speed: Optional[float] = 1.0
+
+
 class LanguageCheckRequest(BaseModel):
     language: Optional[str] = Field(None, description="Target language name or code")
     content: Optional[str] = Field(None, description="Optional text content to analyze script")
@@ -81,6 +90,7 @@ def health():
     """Health check endpoint providing engine status, device, and capabilities."""
     return {
         "status": "healthy",
+        "engine": "VoiceStudio & Chatterbox V3",
         "device": engine.device,
         "t3_model": config.t3_model,
         "mode": config.mode,
@@ -93,7 +103,7 @@ def health():
 
 @app.get("/v1/languages")
 def get_languages():
-    """List all official Chatterbox Multilingual V3 supported languages."""
+    """List all official Chatterbox & VoiceStudio supported languages."""
     return {
         "supported_languages": SUPPORTED_LANGUAGES,
         "count": len(SUPPORTED_LANGUAGES),
@@ -119,6 +129,24 @@ def check_language(req: LanguageCheckRequest):
 
 
 # --- Authenticated Endpoints ---
+@app.post("/v1/audio/speech", dependencies=[Depends(verify_api_key)])
+def openai_speech(req: OpenAISpeechRequest):
+    """OpenAI & VoiceStudio-compatible audio speech endpoint."""
+    try:
+        result: GenerationResult = engine.synthesize(
+            text=req.input,
+            voice_profile=req.voice,
+            title="openai_speech",
+        )
+        if result.audio_path and Path(result.audio_path).exists():
+            with open(result.audio_path, "rb") as f:
+                content = f.read()
+            return Response(content=content, media_type="audio/wav")
+        raise HTTPException(status_code=500, detail="Audio generation failed.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/v1/tts/generate", dependencies=[Depends(verify_api_key)])
 def generate_speech(req: TTSGenerateRequest):
     """Generate audio voice-over from text with automatic language handling."""
@@ -163,7 +191,6 @@ def get_audio_file(filename: str):
     base_dir = config.storage_dir.resolve()
     audio_path = (base_dir / safe_name).resolve()
 
-    # Prevent directory traversal across all operating systems
     try:
         audio_path.relative_to(base_dir)
     except ValueError:
@@ -180,6 +207,7 @@ def get_audio_file(filename: str):
 
 
 @app.get("/v1/voices/profiles")
+@app.get("/profiles")
 def list_voice_profiles():
     """List available voice profiles."""
     profiles = profile_manager.list_profiles()
@@ -187,6 +215,7 @@ def list_voice_profiles():
 
 
 @app.post("/v1/voices/clone", dependencies=[Depends(verify_api_key)])
+@app.post("/profiles", dependencies=[Depends(verify_api_key)])
 async def clone_voice_profile(
     name: str = Form(...),
     gender: str = Form("neutral"),

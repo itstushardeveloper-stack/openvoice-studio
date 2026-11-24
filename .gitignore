@@ -71,3 +71,7 @@ pyrightconfig.json
 *.swo
 .DS_Store
 Thumbs.db
+
+# Upstream cloned repositories (large external checkouts)
+upstream/
+

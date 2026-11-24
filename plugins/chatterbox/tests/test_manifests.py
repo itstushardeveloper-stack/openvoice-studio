@@ -17,7 +17,7 @@ def test_marketplace_manifest_exists_and_valid():
     with open(MARKETPLACE_JSON, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    assert data.get("name") == "chatterbox-voice-marketplace"
+    assert data.get("name") in ("openvoice-studio", "chatterbox-voice-marketplace")
     assert "version" in data
     assert "description" in data
     assert "plugins" in data
@@ -73,4 +73,3 @@ def test_skill_instructions_and_triggers():
     assert "English" in body
     assert "Gujarati" in body
     assert "Devanagari" in body
-    assert "Chatterbox Multilingual V3" in body

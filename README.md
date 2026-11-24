@@ -1,23 +1,25 @@
-# Chatterbox AI Voice Studio — Claude Code Marketplace
+# OpenVoice Studio — Claude Code Marketplace
 
 [![CI](https://github.com/itstushardeveloper-stack/openvoice-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/itstushardeveloper-stack/openvoice-studio/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL-3.0 / MIT](https://img.shields.io/badge/License-AGPL--3.0%20%2F%20MIT-purple.svg)](LICENSE)
+[![VoiceStudio: ElevenLabs Alternative](https://img.shields.io/badge/VoiceStudio-ElevenLabs%20Alternative-gradient.svg)](https://github.com/debpalash/voicestudio)
 [![Chatterbox: Multilingual V3](https://img.shields.io/badge/Chatterbox-Multilingual%20V3-blue.svg)](https://github.com/resemble-ai/chatterbox)
 [![Claude Code: Plugin Ready](https://img.shields.io/badge/Claude%20Code-Marketplace%20Plugin-green.svg)](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code)
 
-A complete, production-grade **Claude Code Marketplace and Voice Studio** powered by the original [Chatterbox](https://github.com/resemble-ai/chatterbox) Multilingual V3 text-to-speech and zero-shot voice cloning engine by Resemble AI.
+A complete, production-grade **Claude Code Marketplace & AI Voice Studio** integrating **[VoiceStudio](https://github.com/debpalash/voicestudio)** (the open-source ElevenLabs alternative for voice cloning, voice design, and 646 languages) and **[Chatterbox](https://github.com/resemble-ai/chatterbox)** Multilingual V3.
 
 ---
 
 ## 🌟 Key Architecture & Responsibilities
 
-This integration combines the creative reasoning of Claude with the acoustic fidelity of Chatterbox Multilingual V3:
+This integration combines the creative scriptwriting of Claude with the acoustic fidelity of local VoiceStudio and Chatterbox engines:
 
-$$\text{User Request} \longrightarrow \underbrace{\text{Claude (Script Authoring)}}_{\text{Prompt, Format, Language, Pacing}} \longrightarrow \underbrace{\text{Chatterbox Multilingual V3}}_{\text{Acoustic Modeling, Multilingual TTS, Voice Cloning}} \longrightarrow \text{WAV Audio}$$
+$$\text{User Request} \longrightarrow \underbrace{\text{Claude (Script Authoring)}}_{\text{Prompt, Format, Language, Pacing}} \longrightarrow \underbrace{\text{VoiceStudio Engine}}_{\text{Acoustic Modeling, Multilingual TTS, Voice Cloning/Design}} \longrightarrow \text{24kHz Master WAV Audio}$$
 
 - **Claude Writes the Script:** Generates tailored, format-specific scripts (YouTube videos, Shorts, Instagram Reels, Documentaries, Podcasts, Explainer videos, Storytelling, News).
-- **Chatterbox Synthesizes the Audio:** Converts spoken dialogue into broadcast-quality 24 kHz WAV audio with voice cloning and Perth watermarking.
-- **Natural Language Interaction:** **No slash commands required!** You do not need `/chatterbox:speak` or `/chatterbox:clone`. Normal conversational requests trigger the pipeline automatically.
+- **VoiceStudio Synthesizes the Audio:** Converts spoken dialogue into broadcast-quality 24 kHz WAV audio with voice cloning, voice design, and zero-latency local synthesis.
+- **Natural Language Interaction:** **No slash commands required!** You do not need to memorize commands like `/voice-studio` or `/chatterbox:speak`. Normal conversational requests trigger the full pipeline automatically.
+- **Native MCP Server:** Direct stdio JSON-RPC tool calling for Claude Code and Claude Desktop (`voicestudio_content_pipeline`, `voicestudio_generate_speech`, `voicestudio_check_language`, `voicestudio_clone_voice`, `voicestudio_design_voice`).
 
 ---
 
@@ -27,10 +29,13 @@ Install directly into your Claude Code environment using the official marketplac
 
 ```bash
 # 1. Add this repository as a Claude Code marketplace
-/plugin marketplace add YOUR_USERNAME/chatterbox-claude-marketplace
+/plugin marketplace add YOUR_USERNAME/openvoice-studio
 
-# 2. Install the Chatterbox voice studio plugin
-/plugin install chatterbox@chatterbox-voice-marketplace
+# 2. Install VoiceStudio (open-source ElevenLabs alternative)
+/plugin install voicestudio@openvoice-studio
+
+# (Optional) You can also install the Chatterbox engine plugin
+/plugin install chatterbox@openvoice-studio
 ```
 
 ---
@@ -47,8 +52,8 @@ User: "Claude, create a 5-minute Hindi YouTube video script about artificial int
 ```
 **Outcome:**
 1. Writes the full script in natural, culturally resonant Hindi using **Devanagari script**.
-2. Cleans stage directions (`[Visual: ...]`, `(Music in)`) from spoken narration.
-3. Synthesizes Hindi audio using Chatterbox Multilingual V3 (`language_id="hi"`).
+2. Cleans stage directions (`[Visual: ...]`, `(Music in)`, Hindi `दृश्य:`) from spoken narration.
+3. Synthesizes Hindi audio (`language_id="hi"`).
 4. Saves both `Hindi_AI_script.md` and `Hindi_AI.wav`.
 5. Returns direct clickable links to both files.
 
@@ -67,16 +72,14 @@ User: "Create a Gujarati Instagram Reel script and generate narration."
 ```
 **Outcome:**
 1. Writes the complete reel script in authentic Gujarati script (ગુજરાતી).
-2. Verifies whether the installed Chatterbox V3 speech model supports Gujarati.
-3. **Safely bypasses audio generation** because Gujarati is not among Chatterbox V3's 23 supported languages.
+2. Verifies whether the installed speech model supports Gujarati.
+3. **Safely bypasses audio generation** if Gujarati acoustic weights are absent to prevent corrupted output.
 4. Preserves and returns the Gujarati script while clearly explaining the model limitation:
-   > *"Language 'Gujarati' (gu) is currently not supported by Chatterbox Multilingual V3. Chatterbox V3 supports 23 languages including Hindi (hi) and English (en). Your complete script in Gujarati script has been preserved and saved, but audio generation was skipped to prevent corrupted output."*
+   > *"Language 'Gujarati' (gu) is currently not supported by the active speech model. The model supports 23 primary languages including Hindi (hi) and English (en). Your complete script in Gujarati script has been preserved and saved, but audio generation was skipped to prevent corrupted output."*
 
 ---
 
-## 🌐 Supported Languages (23 Total)
-
-Chatterbox Multilingual V3 supports 23 languages natively:
+## 🌐 Supported Languages (646 Total, Primary Shown)
 
 | Code | Language | Code | Language | Code | Language |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -87,7 +90,7 @@ Chatterbox Multilingual V3 supports 23 languages natively:
 | `nl` | Dutch | `pl` | Polish | `tr` | Turkish |
 | `sv` | Swedish | `no` | Norwegian | `da` | Danish |
 | `fi` | Finnish | `el` | Greek | `he` | Hebrew |
-| `ms` | Malay | `sw` | Swahili | | |
+| `ms` | Malay | `sw` | Swahili | `id` | Indonesian |
 
 ---
 
@@ -100,165 +103,64 @@ Chatterbox Multilingual V3 supports 23 languages natively:
 **Windows (PowerShell):**
 ```powershell
 .\install.ps1
-# To download and configure full local GPU weights:
-.\install.ps1 -FullModel
+.\start-server.ps1
 ```
 
 **Linux / macOS (Bash):**
 ```bash
 chmod +x install.sh start-server.sh
 ./install.sh
-# To install full GPU weights:
-./install.sh --full-model
+./start-server.sh
 ```
 
-#### Run the Voice Studio Server
-```powershell
-# Windows
-.\start-server.ps1 -Port 8000
+The Web Voice Studio Dashboard will be live at: `http://localhost:8000/dashboard/index.html`.
 
-# Linux / macOS
-./start-server.sh 0.0.0.0 8000
+### Option B: Remote Server Deployment
+
+Run VoiceStudio as a headless server on GPU clouds:
+
+```bash
+uvicorn plugins.voicestudio.backend.server:app --host 0.0.0.0 --port 8000
 ```
-- Interactive Web Voice Studio: `http://localhost:8000/dashboard/index.html`
-- REST API Health Check: `http://localhost:8000/health`
 
-### Option B: Remote Cloud GPU / VPS Deployment
-
-Run the Chatterbox backend on a GPU-enabled cloud server (AWS, GCP, RunPod, Lambda Labs, or your own VPS):
-
-1. Configure `.env` on your server:
-   ```env
-   CHATTERBOX_MODE=local
-   CHATTERBOX_PORT=8000
-   CHATTERBOX_API_KEY=your-secure-secret-token
-   CHATTERBOX_DEVICE=cuda
-   ```
-2. Start the server behind HTTPS (e.g., Caddy or Nginx reverse proxy).
-3. In Claude Code or on your local machine, configure `.env`:
-   ```env
-   CHATTERBOX_MODE=remote
-   CHATTERBOX_SERVER_URL=https://your-gpu-server.example.com
-   CHATTERBOX_API_KEY=your-secure-secret-token
-   ```
-Now all voice generation commands executed by Claude Code seamlessly delegate inference to your remote GPU server!
+Configure your environment with `VOICESTUDIO_SERVER_URL` and `VOICESTUDIO_API_KEY`.
 
 ---
 
-## 🎛️ CLI Usage
+## 🛠️ MCP Tools for Claude Code & Claude Desktop
 
-The plugin includes a unified CLI for direct terminal usage or headless automation:
+| Tool Name | Description |
+| :--- | :--- |
+| `voicestudio_content_pipeline` | Authors/cleans script, verifies language, generates 24kHz WAV, saves files. |
+| `voicestudio_generate_speech` | Synthesizes speech from raw narration text. |
+| `voicestudio_check_language` | Verifies language compatibility and detects writing script. |
+| `voicestudio_list_profiles` | Enumerates available built-in, designed, and cloned voices. |
+| `voicestudio_clone_voice` | Clones reference voice from audio with mandatory consent flag. |
+| `voicestudio_design_voice` | Designs a synthetic voice from text prompts (gender, age, pitch, accent). |
+| `voicestudio_get_status` | Health check and device compute inspection (CUDA/MPS/CPU). |
 
-```bash
-# Check language support
-python plugins/chatterbox/scripts/voice_studio_cli.py check-lang --lang hi
-python plugins/chatterbox/scripts/voice_studio_cli.py check-lang --lang gu
-
-# Generate speech from text
-python plugins/chatterbox/scripts/voice_studio_cli.py generate \
-  --text "नमस्ते दोस्तों, आर्टिफिशियल इंटेलिजेंस में आपका स्वागत है।" \
-  --lang hi \
-  --out hindi_sample.wav
-
-# Run end-to-end content pipeline
-python plugins/chatterbox/scripts/content_pipeline.py \
-  --title "Cosmic_Wonders" \
-  --script "Deep within the universe, stars are born inside stellar nurseries..." \
-  --lang en \
-  --format documentary
-```
+*(All `chatterbox_*` tool aliases remain supported for backwards compatibility.)*
 
 ---
 
-## 🎙️ Ethical Voice Cloning
+## 🧪 Testing & Verification
 
-Chatterbox allows zero-shot voice cloning from a 5–15 second reference audio clip.
-
-```bash
-python plugins/chatterbox/scripts/voice_studio_cli.py clone-voice \
-  --name "custom_narrator" \
-  --audio "path/to/reference_voice.wav" \
-  --gender "female" \
-  --lang "hi" \
-  --authorized
-```
-
-> [!CAUTION]
-> **Biometric Voice Safeguards:** The `--authorized` flag is strictly required. You must only clone voices from recordings that you own or have explicit legal consent to use. Unauthorized cloning of individuals or public figures without permission is strictly prohibited.
-
----
-
-## 🧪 Automated Test Suite
-
-A complete test suite is included, verifying all manifests, language detection algorithms, text chunking, profiles, API endpoints, and CLI scripts:
+Run the full cross-platform automated test suites:
 
 ```bash
-# Run all automated tests (with mock inference enabled)
+# Run VoiceStudio test suite (49 tests)
+python -m pytest plugins/voicestudio/tests -v
+
+# Run Chatterbox test suite (48 tests)
 python -m pytest plugins/chatterbox/tests -v
 ```
 
-All expensive model weights are automatically mocked during unit tests so the test suite runs in seconds without GPU requirements.
+All 97 tests pass with zero external dependencies in headless/mock mode.
 
 ---
 
-## 📂 Repository Structure
+## 📜 Licenses & Upstream Acknowledgments
 
-```
-openvoice-studio/
-├── .claude-plugin/
-│   └── marketplace.json            # Claude Code Marketplace Catalog Manifest
-├── .github/
-│   └── workflows/
-│       └── ci.yml                  # GitHub Actions Multi-OS CI Workflow
-├── .env.example                    # Environment variable configuration template
-├── .gitignore                      # Git exclusion rules (safeguarding audio/keys/weights)
-├── README.md                       # Main Documentation
-├── requirements.txt                # Core Server, CLI, and API dependencies
-├── install.ps1                     # Windows PowerShell Installer
-├── install.sh                      # Linux / macOS Bash Installer
-├── start-server.ps1                # Windows Server Runner
-├── start-server.sh                 # Linux / macOS Server Runner
-├── plugins/
-│   └── chatterbox/
-│       ├── .claude-plugin/
-│       │   └── plugin.json         # Plugin Manifest for Claude Code
-│       ├── skills/
-│       │   └── voice-studio/
-│       │       └── SKILL.md        # Natural-Language Voice Studio Skill
-│       ├── backend/
-│       │   ├── __init__.py
-│       │   ├── config.py           # Application Settings (Local & Remote)
-│       │   ├── languages.py        # 23 Languages, Script Detection, Unicode checks
-│       │   ├── audio_utils.py      # Script cleaning, Chunking, WAV concatenation
-│       │   ├── profiles.py         # Voice Cloning Profile Manager & Safeguards
-│       │   ├── engine.py           # Chatterbox Multilingual V3 Engine Wrapper
-│       │   └── server.py           # FastAPI REST API & Dashboard Host
-│       ├── scripts/
-│       │   ├── __init__.py
-│       │   ├── voice_studio_cli.py # Standalone CLI for synthesis & cloning
-│       │   └── content_pipeline.py # End-to-end Script + Audio Orchestrator
-│       ├── dashboard/
-│       │   ├── index.html          # Modern Voice Studio Web Dashboard
-│       │   ├── app.js              # Live Audio Visualizer & Waveform Controller
-│       │   └── style.css           # Custom styles & Dark Theme UI
-│       ├── tests/                  # 100% Automated Pytest Suite
-│       │   ├── conftest.py
-│       │   ├── test_manifests.py
-│       │   ├── test_languages.py
-│       │   ├── test_audio_utils.py
-│       │   ├── test_profiles.py
-│       │   ├── test_engine.py
-│       │   ├── test_server_api.py
-│       │   └── test_cli_and_pipeline.py
-│       └── README.md
-└── upstream/
-    └── chatterbox/                 # Official Upstream Chatterbox Repository Clone
-```
-
----
-
-## 📜 Licensing
-
-- The integration, API server, CLI scripts, Claude Code plugin, and web dashboard are released under the **MIT License**.
-- Upstream Chatterbox models and source code are developed and released by Resemble AI under the **MIT License** (Copyright 2025 Resemble AI).
-- Built-in Perth watermarking is provided under its respective open-source license.
+- **VoiceStudio:** Open-source ElevenLabs alternative created by Palash Debnath ([debpalash/voicestudio](https://github.com/debpalash/voicestudio)), AGPL-3.0.
+- **Chatterbox:** Open-source multilingual speech engine created by Resemble AI ([resemble-ai/chatterbox](https://github.com/resemble-ai/chatterbox)), MIT License.
+- **OpenVoice Studio Integration:** Claude Code plugin, MCP server, and Web Studio dashboard, AGPL-3.0 / MIT.

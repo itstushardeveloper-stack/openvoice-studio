@@ -1,55 +1,95 @@
 ---
 name: voice-studio
-description: Generates video scripts (YouTube, Shorts, Reels, Documentaries, Podcasts, Storytelling) and synthesizes high-fidelity voice-overs, narration, TTS, and voice cloning in Hindi, English, and 23+ languages using Chatterbox Multilingual V3. Activates automatically via natural language requests without any slash commands.
+description: Generates video scripts (YouTube, Shorts, Reels, Documentaries, Podcasts, Storytelling) and synthesizes high-fidelity voice-overs, narration, TTS, voice design, and voice cloning in Hindi, English, and multilingual languages using VoiceStudio (open-source ElevenLabs alternative) and Chatterbox. Activates automatically via natural language requests or via /voice-studio.
 ---
 
-# Chatterbox AI Voice Studio
+# VoiceStudio & Chatterbox AI Voice Studio
 
-Use this skill whenever the user asks in natural language to:
+Use this skill whenever the user asks in natural language or via command to:
 - Write video scripts with voice-over (YouTube, Shorts, Instagram Reels, Documentaries, Explainers).
 - Generate text-to-speech (TTS) or audio narration.
-- Synthesize voices or generate speech files (WAV).
-- Clone voices using reference recordings.
+- Synthesize voices or generate speech files (24kHz master WAV).
+- Design new voices using descriptive text (age, gender, accent, tone).
+- Clone voices using reference recordings with user authorization.
 - Produce podcast narration or storytelling audio.
 - Create Hindi voice-over or English voice-over.
 
 > [!IMPORTANT]
-> **NO SLASH COMMANDS REQUIRED:** Never ask the user to type `/chatterbox:speak`, `/chatterbox:setup`, or `/chatterbox:clone-voice`. You handle the entire script-to-audio workflow naturally within the conversation.
+> **NO SLASH COMMANDS REQUIRED:** Users do not need to memorize or run slash commands. Normal natural language requests (e.g., *"Create a 5-minute Hindi YouTube video script on AI and generate voice-over"*) trigger the full script authoring and voice synthesis pipeline automatically.
 >
-> **UNRELATED REQUESTS:** Do NOT activate or invoke voice generation for unrelated programming, debugging, database, or general chat requests.
+> **INTERACTIVE COMMAND HANDLING:** If a user *does* type `/voice-studio` without details, do NOT simply state that instructions loaded. Actively guide them and prompt for:
+> 1. **Topic / Idea** (e.g., "Future of Artificial Intelligence in 2026")
+> 2. **Target Language** (Hindi in natural Devanagari, English, etc.)
+> 3. **Format** (YouTube 16:9, Shorts/Reels 9:16, Documentary, Podcast)
+> 4. **Voice Style / Tone** (Energetic, Calm Narrator, Professional, Dramatic)
+>
+> **UNRELATED REQUESTS:** Do NOT activate voice synthesis for unrelated coding, debugging, database, or general chat queries.
+
+---
+
+## Tool Execution Bridge: VoiceStudio & Chatterbox MCP Tools
+
+The plugin provides native MCP (Model Context Protocol) tools for direct execution:
+
+1. `voicestudio_content_pipeline(title, script_content, language, format, voice_profile)` (or alias `chatterbox_content_pipeline`):
+   - Takes your authored script.
+   - Validates language against the multilingual voice engine.
+   - Cleans stage cues (`[Visual: ...]`, `(Music in)`, Hindi `दृश्य:`) from spoken dialogue.
+   - Saves formatted script (`.md` and `.txt`).
+   - Synthesizes 24kHz master WAV audio (or safely preserves script and explains limitation if language is unsupported like Gujarati).
+   - Returns absolute file paths, audio duration, and language details.
+
+2. `voicestudio_generate_speech(text, language_id, voice_profile, title)` (or alias `chatterbox_generate_speech`):
+   - Synthesizes speech from raw narration text.
+
+3. `voicestudio_check_language(language, content)`:
+   - Checks model compatibility before synthesis.
+
+4. `voicestudio_list_profiles()`:
+   - Lists available voice profiles (`standard_hindi_narrator`, `standard_english_narrator`, `conversational_turbo`, `documentary_deep`).
+
+5. `voicestudio_clone_voice(name, ref_audio_path, user_consent)`:
+   - Clones a voice from reference audio. Requires explicit user authorization (`user_consent=True`).
+
+6. `voicestudio_design_voice(name, description, language)`:
+   - Designs a synthetic voice from text prompts (e.g., "Middle-aged male with calm, deep British accent for storytelling").
+
+7. `voicestudio_check_health()`:
+   - Returns voice engine backend status, active GPU device, and model readiness.
+
+*(If running in an environment without MCP tool calling, fall back to executing via terminal: `python plugins/voicestudio/scripts/content_pipeline.py ...`)*
 
 ---
 
 ## Core Principle: Automatic Content Language Detection
 
-The most important user experience requirement is to determine the language of the **CONTENT** the user wants to create, not merely the conversational language in which the user chats with Claude.
+Always identify the language of the **CONTENT** the user wants to create, not merely the language of their prompt.
 
 ### Real-World Examples:
 
 1. **User (in English):** *"Claude, create a 5-minute Hindi YouTube video script about artificial intelligence and generate voice-over."*
    - **Target Content Language:** Hindi (`hi`).
-   - **Writing Script:** Devanagari script (e.g., नमस्ते दोस्तों, आज हम AI के बारे में बात करेंगे...).
-   - **Narration Language:** `hi`.
-   - **Action:** Write full script in natural Devanagari Hindi, save script as Markdown/TXT, synthesize WAV audio using Chatterbox Multilingual V3 Hindi model, and return both files.
+   - **Writing Script:** Devanagari script (e.g., नमस्ते दोस्तों! आज के इस वीडियो में हम बात करेंगे कृत्रिम बुद्धिमत्ता यानी AI के भविष्य के बारे में...).
+   - **Action:** Author full script in natural Devanagari Hindi, invoke `voicestudio_content_pipeline(..., language="hi")`, and return both the Markdown script and WAV audio file.
 
 2. **User (in English):** *"Create an English documentary script about space and generate narration."*
    - **Target Content Language:** English (`en`).
-   - **Action:** Write English script, save script file, synthesize English voice-over, return both files.
+   - **Action:** Author English script, invoke `voicestudio_content_pipeline(..., language="en")`, and return both files.
 
 3. **User (in English or Hindi):** *"Create a Gujarati Instagram Reel script and generate narration."*
    - **Target Content Language:** Gujarati (`gu`).
-   - **Model Verification:** Check Chatterbox Multilingual V3 support. Chatterbox V3 supports 23 languages (including Hindi and English), but does **NOT** support Gujarati.
-   - **Action:** Write the complete script in authentic Gujarati script (ગુજરાતી), save the script file, safely **BYPASS** audio generation to prevent corrupted audio, and politely inform the user of the model limitation while delivering their saved Gujarati script.
+   - **Model Verification:** When checking Gujarati against a model configuration that lacks Gujarati acoustic weights:
+   - **Action:** Author the complete script in authentic Gujarati script (ગુજરાતી), invoke `voicestudio_content_pipeline(..., language="gu")`. The tool safely **bypasses audio generation** to prevent corrupted audio, preserves the Gujarati script file, and returns a clear explanation of the model limitation.
 
 ### Language Rules:
 1. **Explicit Request Priority:** If the user specifies "Hindi", "English", "French", "German", etc., that language takes top priority.
 2. **Never Auto-Translate Without Permission:** Keep the content strictly in the requested language.
-3. **Implicit Detection:** If the user pastes an existing script without specifying language, detect the script Unicode range (Devanagari $\rightarrow$ Hindi, Latin $\rightarrow$ English, etc.).
+3. **Implicit Detection:** If the user supplies existing text without specifying language, detect the script Unicode range (Devanagari $\rightarrow$ Hindi, Latin $\rightarrow$ English, etc.).
 4. **Preserve Native Writing System:** Always write Hindi in Devanagari, Russian in Cyrillic, Japanese in Kana/Kanji, etc.
 
 ---
 
-## Supported Chatterbox Multilingual V3 Languages (23 Total)
+## Supported Multilingual Languages (646 Total, Primary Shown)
 
 | Code | Language | Code | Language | Code | Language |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -60,9 +100,7 @@ The most important user experience requirement is to determine the language of t
 | `nl` | Dutch | `pl` | Polish | `tr` | Turkish |
 | `sv` | Swedish | `no` | Norwegian | `da` | Danish |
 | `fi` | Finnish | `el` | Greek | `he` | Hebrew |
-| `ms` | Malay | `sw` | Swahili | | |
-
-*If a requested language is NOT in this table (e.g. Gujarati `gu`, Bengali `bn`, Marathi `mr`, Tamil `ta`), write and preserve the script, but do NOT send unsupported language codes to the model.*
+| `ms` | Malay | `sw` | Swahili | `id` | Indonesian |
 
 ---
 
@@ -71,53 +109,19 @@ The most important user experience requirement is to determine the language of t
 Follow these steps on every voice-generation request:
 
 ### Step 1: Understand Content Requirements
-Extract key elements from user request:
-- **Format:** YouTube (16:9), YouTube Shorts / Instagram Reels (9:16), Documentary, Explainer, Podcast, Storytelling, News.
-- **Duration / Word Count:**
-  - YouTube (5 min): ~650–750 words
-  - Shorts / Reels (30–60s): ~75–140 words
-  - Documentary: paced at ~125 words/min
-- **Tone & Style:** Cinematic, dramatic, energetic, conversational, educational.
-- **Voice Preference:** Male, female, standard Hindi narrator, or custom voice profile.
+- Determine topic, format, target duration, audience, and preferred voice tone (e.g. Hindi male narrator).
 
-### Step 2: Language Resolution Check
-Verify language code.
-- If supported (`hi`, `en`, etc.): proceed to script and audio generation.
-- If unsupported (`gu`, etc.): proceed to script generation, but flag audio generation as skipped.
+### Step 2: Author the Script
+- Format with markdown headers and timestamps.
+- Structure for spoken flow (130-150 words per minute).
+- Include visual cues in square brackets (`[Visual: Drone shot of city skyline]`) — these will be automatically stripped before audio synthesis.
 
-### Step 3: Write the Complete Script
-Author the complete, engaging script in Claude with:
-- Hook / Introduction
-- Main Body / Key Points
-- Climax / Insights
-- Call-to-action / Outro
+### Step 3: Call `voicestudio_content_pipeline`
+- Pass the authored script text, title, requested language (`hi`, `en`, etc.), format, and voice profile.
 
-### Step 4: Save Script & Synthesize Audio
-Save the script and execute the Chatterbox pipeline via CLI:
-
-```powershell
-# For Windows
-python plugins/chatterbox/scripts/content_pipeline.py --title "AI_Revolution" --script "SCRIPT_TEXT" --lang "hi" --format "youtube"
-```
-
-Or for single audio generation:
-```powershell
-python plugins/chatterbox/scripts/voice_studio_cli.py generate --text "CLEAN_SPOKEN_TEXT" --lang "hi" --voice "standard_hindi_narrator" --title "AI_Revolution"
-```
-
-*(On Linux / macOS, use standard python3).*
-
-### Step 5: Deliver Results to User
-Present:
-1. Complete script text with visual structure.
-2. Clickable link to saved script file (`.md` or `.txt`).
-3. Clickable link to generated WAV audio file (`.wav`) with duration and sample rate.
-4. If an unsupported language was requested, state the limitation transparently while providing the completed script.
-
----
-
-## Ethical Voice Cloning Policy
-When the user asks to clone a voice using reference audio:
-- Only reference audio that the user owns or has explicit consent/rights to use.
-- Reference clips should be 5 to 15 seconds of clean, background-noise-free speech.
-- Pass `--authorized` flag to confirm authorization.
+### Step 4: Deliver Files
+- Return:
+  1. Script file link (`.md`).
+  2. Spoken dialogue text (`.txt`).
+  3. Master 24kHz audio file link (`.wav`), along with duration.
+  4. Web dashboard link to preview/play audio: `http://localhost:8000`.

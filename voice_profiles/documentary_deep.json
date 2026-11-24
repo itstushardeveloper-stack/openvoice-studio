@@ -1,0 +1,12 @@
+{
+  "name": "documentary_deep",
+  "description": "Deep, authoritative narrator voice suited for nature, history, and scientific documentaries.",
+  "gender": "male",
+  "language_tag": "en",
+  "audio_path": null,
+  "authorized": true,
+  "created_at": "2026-01-01T00:00:00Z",
+  "speaker_id": "doc_deep",
+  "kind": "system",
+  "design_attrs": null
+}

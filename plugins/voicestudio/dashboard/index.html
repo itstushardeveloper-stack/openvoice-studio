@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VoiceStudio - Open-Source ElevenLabs Alternative & AI Voice Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-waveform-lines text-white text-lg"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            VoiceStudio AI
+          </span>
+          <span class="text-xs px-2 py-0.5 ml-2 rounded-full bg-brand-900/50 text-brand-300 border border-brand-700/50">
+            ElevenLabs Alternative
+          </span>
+        </div>
+      </div>
+
+      <!-- Server & Device Status Badge -->
+      <div class="flex items-center space-x-4">
+        <div id="statusBadge" class="flex items-center space-x-2 text-xs px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700">
+          <span id="statusDot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span id="statusText" class="text-slate-300">Connecting...</span>
+          <span id="deviceTag" class="text-slate-400 border-l border-slate-700 pl-2">CPU</span>
+        </div>
+
+        <button id="openSettingsBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition">
+          <i class="fa-solid fa-sliders text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Column: Script Editor & Language Selection (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col space-y-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex-1 flex flex-col">
+        
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base font-semibold flex items-center text-slate-200">
+            <i class="fa-solid fa-pen-nib text-brand-500 mr-2"></i> Script & Narration Editor
+          </h2>
+          <!-- Preset Templates -->
+          <div class="flex items-center space-x-1.5 text-xs">
+            <button class="template-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" data-format="hindi-yt">
+              🇮🇳 Hindi YouTube
+            </button>
+            <button class="template-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" data-format="english-doc">
+              🇬🇧 English Doc
+            </button>
+            <button class="template-btn px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300" data-format="shorts">
+              📱 Shorts / Reel
+            </button>
+          </div>
+        </div>
+
+        <!-- Script Input Area -->
+        <div class="relative flex-1 min-h-[220px]">
+          <textarea id="scriptInput" 
+            placeholder="Type or paste your script in natural Hindi, English, or any of 23 languages. Production cues like [Visual: ...] or [Sound: ...] will be automatically removed from speech synthesis..."
+            class="w-full h-full bg-slate-950/70 border border-slate-800 rounded-xl p-4 text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:border-brand-500 transition resize-none font-sans"></textarea>
+        </div>
+
+        <!-- Text Statistics Bar -->
+        <div class="flex items-center justify-between text-xs text-slate-400 mt-2.5 pt-2.5 border-t border-slate-800/80">
+          <div class="flex items-center space-x-4">
+            <span>Chars: <strong id="charCount" class="text-slate-200">0</strong></span>
+            <span>Words: <strong id="wordCount" class="text-slate-200">0</strong></span>
+            <span>Est. Duration: <strong id="estDuration" class="text-brand-400">0s</strong></span>
+          </div>
+          <button id="clearScriptBtn" class="text-slate-500 hover:text-rose-400 transition">
+            <i class="fa-solid fa-trash-can mr-1"></i> Clear
+          </button>
+        </div>
+
+        <!-- Content Language Selection -->
+        <div class="mt-4 pt-3 border-t border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Content Language</label>
+            <select id="languageSelect" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+              <option value="auto">⚡ Auto-detect from script</option>
+              <optgroup label="Primary Languages">
+                <option value="hi" selected>🇮🇳 Hindi (हिन्दी) - Devanagari</option>
+                <option value="en">🇬🇧 English (US/UK)</option>
+              </optgroup>
+              <optgroup label="23 Multilingual V3 Supported Languages" id="allLanguagesGroup">
+                <!-- Dynamically populated -->
+              </optgroup>
+              <optgroup label="Unsupported Check (Preview)">
+                <option value="gu">🇮🇳 Gujarati (ગુજરાતી) - Unsupported</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Script Title</label>
+            <input type="text" id="scriptTitle" value="Narration" placeholder="e.g. AI Revolution Documentary"
+              class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+          </div>
+        </div>
+
+        <!-- Language Warning Alert (hidden by default) -->
+        <div id="languageWarningBox" class="hidden mt-3 p-3 rounded-lg bg-amber-950/40 border border-amber-800/60 text-xs text-amber-200 flex items-start space-x-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-400 mt-0.5 flex-shrink-0"></i>
+          <span id="languageWarningText"></span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Column: Voice Engine Controls, Player & Cloning (5 cols) -->
+    <div class="lg:col-span-5 flex flex-col space-y-4">
+      
+      <!-- Voice Profile & Controls Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-semibold text-slate-200 flex items-center">
+            <i class="fa-solid fa-microphone-lines text-indigo-400 mr-2"></i> Voice Selection
+          </h2>
+          <button id="toggleCloneModalBtn" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/30 transition">
+            <i class="fa-solid fa-plus mr-1"></i> Clone Voice
+          </button>
+        </div>
+
+        <!-- Profile Selector -->
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Speaker Voice Profile</label>
+          <select id="voiceProfileSelect" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500">
+            <option value="standard_hindi_narrator">standard_hindi_narrator (Female - Warm Hindi)</option>
+            <option value="standard_english_narrator">standard_english_narrator (Expressive English)</option>
+            <option value="conversational_turbo">conversational_turbo (Fast Conversational)</option>
+          </select>
+          <p id="profileDescription" class="text-xs text-slate-400 mt-1 italic"></p>
+        </div>
+
+        <!-- Expressiveness & Guidance Sliders -->
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Emotion / Exaggeration</span>
+              <span id="exaggVal" class="text-brand-400 font-mono">0.5</span>
+            </div>
+            <input type="range" id="exaggerationRange" min="0.0" max="1.0" step="0.05" value="0.5"
+              class="w-full accent-brand-500 bg-slate-800 rounded h-1.5 cursor-pointer">
+          </div>
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>CFG Guidance</span>
+              <span id="cfgVal" class="text-indigo-400 font-mono">0.5</span>
+            </div>
+            <input type="range" id="cfgRange" min="0.0" max="1.0" step="0.05" value="0.5"
+              class="w-full accent-indigo-500 bg-slate-800 rounded h-1.5 cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Synthesize Button -->
+        <button id="synthesizeBtn" 
+          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-medium shadow-lg shadow-brand-500/25 flex items-center justify-center space-x-2 transition transform active:scale-[0.99]">
+          <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+          <span id="synthesizeBtnText">Generate Voice-Over (WAV)</span>
+        </button>
+
+      </div>
+
+      <!-- Audio Player Card -->
+      <div id="playerCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <h3 class="text-sm font-semibold text-slate-300 flex items-center justify-between">
+          <span><i class="fa-solid fa-volume-high text-brand-400 mr-2"></i> Audio Output</span>
+          <span id="generationMeta" class="text-xs text-slate-500 font-mono">Ready</span>
+        </h3>
+
+        <!-- Canvas Waveform -->
+        <div class="h-20 bg-slate-950 rounded-xl border border-slate-800/80 p-2 flex items-center justify-center overflow-hidden relative">
+          <canvas id="waveformCanvas" class="w-full h-full"></canvas>
+          <div id="waveformPlaceholder" class="text-xs text-slate-600">Audio waveform will display here</div>
+        </div>
+
+        <!-- HTML5 Audio Element -->
+        <audio id="audioElement" controls class="w-full rounded-lg bg-slate-950"></audio>
+
+        <div class="flex items-center space-x-3 pt-1">
+          <a id="downloadWavBtn" href="#" download="narration.wav"
+            class="flex-1 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium text-center border border-slate-700 transition flex items-center justify-center space-x-1.5 opacity-50 pointer-events-none">
+            <i class="fa-solid fa-download"></i>
+            <span>Download Master WAV</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Voice Cloning Modal -->
+  <div id="cloneModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-slate-100 flex items-center">
+          <i class="fa-solid fa-dna text-brand-500 mr-2"></i> Clone New Voice Profile
+        </h3>
+        <button id="closeCloneModalBtn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Profile Name</label>
+          <input type="text" id="cloneName" placeholder="e.g. rohit_storyteller"
+            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-xs focus:outline-none focus:border-brand-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Gender</label>
+            <select id="cloneGender" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-xs">
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="neutral">Neutral</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Language</label>
+            <select id="cloneLang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 text-xs">
+              <option value="hi">Hindi (hi)</option>
+              <option value="en">English (en)</option>
+              <option value="multilingual">Multilingual</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Reference Audio Clip (5-15s WAV/MP3)</label>
+          <input type="file" id="cloneAudioFile" accept=".wav,.mp3,.flac"
+            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-400 text-xs file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-slate-800 file:text-slate-200 file:text-xs">
+        </div>
+
+        <!-- Ethical Voice Authorization Safeguard -->
+        <div class="p-3 rounded-lg bg-indigo-950/40 border border-indigo-800/60 text-xs text-indigo-200">
+          <label class="flex items-start space-x-2 cursor-pointer">
+            <input type="checkbox" id="cloneAuthCheck" class="mt-0.5 rounded bg-slate-900 border-slate-700 text-brand-600 focus:ring-0">
+            <span><strong>Voice Authorization Affirmation:</strong> I certify and declare that I own or hold explicit written consent and authorization to clone and synthesize this speaker's voice.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2">
+        <button id="cancelCloneBtn" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">Cancel</button>
+        <button id="submitCloneBtn" class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium">Save Cloned Voice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal (Local vs Remote Server) -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-base text-slate-100 flex items-center">
+          <i class="fa-solid fa-server text-indigo-400 mr-2"></i> Deployment & Connection Settings
+        </h3>
+        <button id="closeSettingsModalBtn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">Server URL</label>
+          <input type="text" id="settingsServerUrl" placeholder="http://localhost:8000"
+            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 font-mono">
+        </div>
+        <div>
+          <label class="block font-medium text-slate-300 mb-1">API Key (Optional for remote VPS / cloud)</label>
+          <input type="password" id="settingsApiKey" placeholder="sk-chatterbox-..."
+            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-100 font-mono">
+        </div>
+        <button id="testConnectionBtn" class="w-full py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700">
+          <i class="fa-solid fa-plug mr-1"></i> Test Connection
+        </button>
+        <div id="testConnectionResult" class="text-xs"></div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2">
+        <button id="saveSettingsBtn" class="px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-slate-800/80 py-3 text-center text-xs text-slate-500">
+    Chatterbox Voice Studio • Powered by Resemble AI Chatterbox Multilingual V3 & Claude Code Integration
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

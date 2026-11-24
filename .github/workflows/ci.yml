@@ -1,4 +1,4 @@
-name: Chatterbox AI Voice CI
+name: OpenVoice Studio CI
 
 on:
   push:
@@ -34,5 +34,7 @@ jobs:
       - name: Run Pytest Test Suite
         env:
           CHATTERBOX_MOCK_INFERENCE: "true"
+          VOICESTUDIO_MOCK_INFERENCE: "true"
         run: |
+          python -m pytest plugins/voicestudio/tests -v
           python -m pytest plugins/chatterbox/tests -v

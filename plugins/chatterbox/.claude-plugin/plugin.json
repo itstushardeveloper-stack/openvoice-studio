@@ -1,6 +1,6 @@
 {
   "name": "chatterbox",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "High-fidelity AI voice generation, multilingual TTS (Hindi, English, and 23+ languages), zero-shot voice cloning, and audio narration powered by Chatterbox Multilingual V3.",
   "author": {
     "name": "Chatterbox Open Source Voice Team",
@@ -20,9 +20,19 @@
     "voice-cloning",
     "audio-narration",
     "youtube-scripts",
-    "claude-code"
+    "claude-code",
+    "mcp"
   ],
   "skills": [
     "./skills/voice-studio"
-  ]
+  ],
+  "mcpServers": {
+    "chatterbox": {
+      "command": "python",
+      "args": ["-m", "backend.mcp_server"],
+      "env": {
+        "PYTHONPATH": "${pluginRoot}"
+      }
+    }
+  }
 }

@@ -1,0 +1,40 @@
+{
+  "name": "voicestudio",
+  "version": "1.2.0",
+  "description": "VoiceStudio: Open-source, local-first ElevenLabs alternative for AI voice generation, multilingual TTS (646 languages including Hindi and English), zero-shot voice cloning, voice design, and video script narration with native MCP tools.",
+  "author": {
+    "name": "VoiceStudio Community",
+    "email": "engineering@openvoice-studio.local"
+  },
+  "homepage": "https://github.com/itstushardeveloper-stack/openvoice-studio",
+  "repository": "https://github.com/itstushardeveloper-stack/openvoice-studio",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "voice",
+    "tts",
+    "text-to-speech",
+    "voicestudio",
+    "elevenlabs-alternative",
+    "hindi",
+    "english",
+    "multilingual",
+    "voice-cloning",
+    "voice-design",
+    "audio-narration",
+    "youtube-scripts",
+    "claude-code",
+    "mcp"
+  ],
+  "skills": [
+    "./skills/voice-studio"
+  ],
+  "mcpServers": {
+    "voicestudio": {
+      "command": "python",
+      "args": ["-m", "backend.mcp_server"],
+      "env": {
+        "PYTHONPATH": "${pluginRoot}"
+      }
+    }
+  }
+}

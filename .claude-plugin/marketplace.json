@@ -1,16 +1,41 @@
 {
-  "name": "chatterbox-voice-marketplace",
-  "version": "1.0.0",
-  "description": "Official Claude Code marketplace for Chatterbox AI Voice Generation, Multilingual TTS (Hindi, English, etc.), Voice Cloning, and Audio Narration.",
+  "name": "openvoice-studio",
+  "version": "1.2.0",
+  "description": "Official Claude Code marketplace for VoiceStudio (ElevenLabs Alternative) and Chatterbox AI Voice Generation, Multilingual TTS, Voice Cloning, and Audio Narration.",
   "owner": {
-    "name": "Chatterbox AI Community",
+    "name": "VoiceStudio Open Source Team",
     "url": "https://github.com/itstushardeveloper-stack/openvoice-studio"
   },
   "plugins": [
     {
+      "name": "voicestudio",
+      "version": "1.2.0",
+      "description": "VoiceStudio: Open-source, local-first ElevenLabs alternative for AI voice generation, multilingual TTS (646 languages including Hindi and English), zero-shot voice cloning, voice design, and video narration with native MCP tools.",
+      "source": "./plugins/voicestudio",
+      "author": {
+        "name": "VoiceStudio Open Source Team"
+      },
+      "tags": [
+        "voice",
+        "tts",
+        "ai-voice",
+        "voicestudio",
+        "elevenlabs-alternative",
+        "multilingual",
+        "hindi",
+        "english",
+        "voice-cloning",
+        "voice-design",
+        "narration",
+        "youtube",
+        "podcast",
+        "mcp"
+      ]
+    },
+    {
       "name": "chatterbox",
-      "version": "1.0.0",
-      "description": "High-fidelity AI voice generation, multilingual TTS (Hindi, English, and 23+ languages), zero-shot voice cloning, and audio narration powered by Chatterbox Multilingual V3.",
+      "version": "1.2.0",
+      "description": "High-fidelity AI voice generation, multilingual TTS (Hindi, English, and 23+ languages), zero-shot voice cloning, and audio narration powered by Chatterbox Multilingual V3 with native MCP tools.",
       "source": "./plugins/chatterbox",
       "author": {
         "name": "Chatterbox Open Source Voice Team"
@@ -26,7 +51,8 @@
         "voice-cloning",
         "narration",
         "youtube",
-        "podcast"
+        "podcast",
+        "mcp"
       ]
     }
   ]

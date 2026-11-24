@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Chatterbox AI Voice Studio - Windows Server Runner
+    OpenVoice Studio & VoiceStudio - Windows Server Runner
 .DESCRIPTION
     Launches the FastAPI REST server and web Voice Studio dashboard.
 #>
@@ -9,13 +9,14 @@
 param(
     [string]$HostAddress = "0.0.0.0",
     [int]$Port = 8000,
+    [string]$Plugin = "voicestudio",
     [switch]$Reload = $false
 )
 
-$env:PYTHONPATH = "$PSScriptRoot;$PSScriptRoot\plugins\chatterbox"
+$env:PYTHONPATH = "$PSScriptRoot;$PSScriptRoot\plugins\$Plugin;$PSScriptRoot\plugins\chatterbox"
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "       Starting Chatterbox Voice Studio Server            " -ForegroundColor Cyan
+Write-Host "   Starting OpenVoice Studio ($Plugin) Server             " -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Host: http://$HostAddress`:$Port" -ForegroundColor Green
 Write-Host "Dashboard: http://localhost:$Port/dashboard/index.html" -ForegroundColor Green
@@ -28,4 +29,4 @@ if ($Reload) {
     $reloadFlag = "--reload"
 }
 
-python -m uvicorn plugins.chatterbox.backend.server:app --host $HostAddress --port $Port $reloadFlag
+python -m uvicorn plugins.$Plugin.backend.server:app --host $HostAddress --port $Port $reloadFlag

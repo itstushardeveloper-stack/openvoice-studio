@@ -52,10 +52,13 @@ class VoiceProfileManager:
         """Dynamic path to profiles directory ensuring active config is used."""
         p = self._custom_profiles_dir or config.profiles_dir
         p.mkdir(parents=True, exist_ok=True)
+        self._ensure_builtin_profiles(p)
         return p
 
-    def _ensure_builtin_profiles(self):
+    def _ensure_builtin_profiles(self, target_dir: Optional[Path] = None):
         """Seed default built-in profile descriptors."""
+        dest_dir = target_dir or (self._custom_profiles_dir or config.profiles_dir)
+        dest_dir.mkdir(parents=True, exist_ok=True)
         default_profiles = [
             VoiceProfile(
                 name="standard_hindi_narrator",
@@ -89,7 +92,7 @@ class VoiceProfileManager:
             ),
         ]
         for p in default_profiles:
-            meta_path = self.profiles_dir / f"{p.name}.json"
+            meta_path = dest_dir / f"{p.name}.json"
             if not meta_path.exists():
                 with open(meta_path, "w", encoding="utf-8") as f:
                     json.dump(p.to_dict(), f, indent=2)
